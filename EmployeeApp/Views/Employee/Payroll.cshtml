@@ -1,0 +1,112 @@
+﻿@using EmployeeApp.ViewModels;
+@using System.Globalization;
+
+@model EmployeeIndexViewModel
+
+@{
+    ViewData["Title"] = "Зарплатна звітність";
+    decimal totalSalaries = 0;
+
+    foreach (var item in Model.Employees)
+    {
+        totalSalaries += item.Salary;
+    }
+}
+
+<h2>Список співробітників та зарплатна звітність</h2>
+
+<div class="my-2 ">
+    <form method="get" asp-action="Payroll" class="row row-cols-lg-auto g-3 align-items-center ">
+
+        <span>Компанія</span>
+        <div class="col-12 ">
+            <label class="visually-hidden" for="Company">Компанія:</label>
+
+            <select name="companyId" id="Company" class="form-select ">
+                <option selected>Всі</option>
+                @foreach (var company in Model.Companies)
+                {
+                    <option selected="@(company.Id == Model.CompanyId)" value="@company.Id">@company.Name</option>
+                }
+            </select>
+        </div>
+
+        <span>Відділ</span>
+        <div class="col-12">
+            <label class="visually-hidden" for="Department">Відділ:</label>
+            <select name="departmentId" id="Department" class="form-select">
+                <option selected>Всі</option>
+                @foreach (var department in Model.Departments)
+                {
+                    <option selected="@(department.Id == Model.DepartmentId)" value="@department.Id">@department.Name</option>
+                }
+            </select>
+        </div>
+
+        <span>Посада</span>
+        <div class="col-12">
+            <label class="visually-hidden" for="Position">Посада:</label>
+            <select name="positionId" id="Position" class="form-select">
+                <option selected>Всі</option>
+                @foreach (var position in Model.Positions)
+                {
+                    <option selected="@(position.Id == Model.PositionId)" value="@position.Id">@position.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Сформувати звіт</button>
+            <a asp-action="Payroll" asp-controller="Employee" class="btn btn-dark">Скасувати</a>
+            
+        </div>
+    </form>
+</div>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Employees.First().Id)</th>
+            <th>@Html.DisplayNameFor(model => model.Employees.First().FullName)</th>
+            <th>@Html.DisplayNameFor(model => model.Employees.First().Address)</th>
+            <th>@Html.DisplayNameFor(model => model.Employees.First().Phone)</th>
+            <th>@Html.DisplayNameFor(model => model.Employees.First().BirthDate)</th>
+            <th>@Html.DisplayNameFor(model => model.Employees.First().HireDate)</th>
+            <th>@Html.DisplayNameFor(model => model.Employees.First().Salary)</th>
+            <th>@Html.DisplayNameFor(model => model.Employees.First().Department)</th>
+            <th>@Html.DisplayNameFor(model => model.Employees.First().Position)</th>
+            <th>@Html.DisplayNameFor(model => model.Employees.First().Company)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Employees)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.FullName</td>
+                <td>@item.Address</td>
+                <td>@item.Phone</td>
+                <td>@item.BirthDate.ToShortDateString() (@(DateTime.Now.Year - item.BirthDate.Year))</td>
+                <td>@item.HireDate.ToShortDateString() (@(DateTime.Now.Year - item.HireDate.Year))</td>
+                <td>@item.Salary.ToString("C2", new CultureInfo("uk-UA"))</td>
+                <td>@item.Department.Name</td>
+                <td>@item.Position.Name</td>
+                <td>@item.Company.Name</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-between">
+    <div>
+        Загальна сума окладів: @totalSalaries.ToString("C2", new CultureInfo("uk-UA"))
+    </div>
+    <div>
+        <a asp-action="ExportToTxt" asp-controller="Employee" asp-route-searchString="@Model.SearchString" asp-route-companyId="@Model.CompanyId" asp-route-departmentId="@Model.DepartmentId" asp-route-positionId="@Model.PositionId" class="btn btn-primary me-2">
+            Експорт в TXT
+        </a>
+    </div>
+</div>
+
+
